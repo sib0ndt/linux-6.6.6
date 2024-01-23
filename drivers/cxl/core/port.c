@@ -37,6 +37,13 @@ DECLARE_RWSEM(cxl_region_rwsem);
 static DEFINE_IDA(cxl_port_ida);
 static DEFINE_XARRAY(cxl_root_buses);
 
+int cxl_num_decoders_committed(struct cxl_port *port)
+{
+	lockdep_assert_held(&cxl_region_rwsem);
+
+	return port->commit_end + 1;
+}
+
 static ssize_t devtype_show(struct device *dev, struct device_attribute *attr,
 			    char *buf)
 {
@@ -219,9 +226,9 @@ static ssize_t dpa_resource_show(struct device *dev, struct device_attribute *at
 			    char *buf)
 {
 	struct cxl_endpoint_decoder *cxled = to_cxl_endpoint_decoder(dev);
-	u64 base = cxl_dpa_resource_start(cxled);
 
-	return sysfs_emit(buf, "%#llx\n", base);
+	guard(rwsem_read)(&cxl_dpa_rwsem);
+	return sysfs_emit(buf, "%#llx\n", (u64)cxl_dpa_resource_start(cxled));
 }
 static DEVICE_ATTR_RO(dpa_resource);
 

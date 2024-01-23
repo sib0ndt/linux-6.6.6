@@ -157,5 +157,5 @@ config COMMON_CLK_SC2
 	select COMMON_CLK_MESON_VID_PLL_DIV
 	help
 	  Support for the clock controller on Amlogic S905X4 devices,
-	  aka sc2. Say Y if you want peripherals to work.
+	  aka sc2. Say Y if you want peripherals to work.	  
 endmenu

@@ -203,6 +203,13 @@ config ARM_CHARLCD
 	  line and the Linux version on the second line, but that's
 	  still useful.
 
+config FD6551
+	tristate "FD6551 driver for LED 7 segment displays"
+	depends on I2C_GPIO
+	depends on OF || COMPILE_TEST
+	help
+	  Say Y to enable support for FD6551
+
 menuconfig PARPORT_PANEL
 	tristate "Parallel port LCD/Keypad Panel support"
 	depends on PARPORT
