@@ -2109,8 +2109,6 @@ static struct wireless_dev *wlanNetCreate(PVOID pvData, PVOID pvDriverData)
 	INIT_WORK(&(prGlueInfo->monWork), wlanMonWorkHandler);
 #endif
 
-	// lower mtu to make packet fit in 1.5k bounce buf of g12a sdio ctrlr
-	dev_info(prDev, "G12a workaround, setting mtu to 1408.\n",__func__);
 	prGlueInfo->prDevHandler->mtu=1408;
 	/* 4 <3.1.2> co-relate with wiphy bi-directionally */
 	prGlueInfo->prDevHandler->ieee80211_ptr = prWdev;
