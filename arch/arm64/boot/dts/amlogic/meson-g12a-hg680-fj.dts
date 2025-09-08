@@ -1,17 +1,12 @@
-// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-/*
- * Copyright (c) 2018 Amlogic, Inc. All rights reserved.
- * 
- * sibondt
- */
+/* @sib0ndt */
 
 /dts-v1/;
 
 #include "meson-g12a-u200.dts"
 
 / {
-	compatible = "amlogic,g12a";
-	model = "HG680 FJ";
+	compatible = "amlogic,u200", "amlogic,g12a";
+	model = "s905x2";
 
 	vddgpu: regulator-vddgpu {
 		compatible = "regulator-fixed";
@@ -20,6 +15,37 @@
 		regulator-max-microvolt = <800000>;
 		vin-supply = <&main_12v>;
 		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	dc_in: regulator-dc_in {
+		compatible = "regulator-fixed";
+		regulator-name = "DC_IN";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
+	};
+	
+	vusb_d_reg: regulator-vusb-d {
+		compatible = "regulator-fixed";
+		regulator-name = "vusb_d";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	vusb_a_reg: regulator-vusb-a {
+		compatible = "regulator-fixed";
+		regulator-name = "vusb_a";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	vddio_ao1v8: regulator-vddio_ao1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDIO_AO1V8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		vin-supply = <&vddao_3v3>;
 		regulator-always-on;
 	};
 
@@ -62,14 +88,20 @@
 
 	};
 
+reserved-memory {
+    secmon@5000000 {
+        reg = <0x0 0x05000000 0x0 0x03000000>;
+        no-map;
+    };
+    linux,cma {
+        size = <0x0 0x10000000>;
+    };
+};
+
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
-};
-
-&mali {
-	mali-supply=<&vddgpu>;
 };
 
 &pwm_ef {
@@ -78,6 +110,22 @@
 	pinctrl-names = "default";
 	clocks = <&xtal>;
 	clock-names = "clkin0";
+};
+
+&mali {
+	mali-supply=<&vddgpu>;
+};
+
+&hdmi_tx {
+	status = "okay";
+	pinctrl-0 = <&hdmitx_hpd_pins>, <&hdmitx_ddc_pins>;
+	pinctrl-names = "default";
+};
+
+&hdmi_tx_tmds_port {
+	hdmi_tx_tmds_out: endpoint {
+		remote-endpoint = <&hdmi_connector_in>;
+	};
 };
 
 /* SDIO */
@@ -111,17 +159,9 @@
 	status = "okay";
 	bus-width = <4>;
 	cap-sd-highspeed;
-	max-frequency = <50000000>;
-};
-
-/* eMMC */
-&sd_emmc_c {
-	status = "okay";
-	bus-width = <8>;
-	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
-	mmc-hs200-1_8v;
 	max-frequency = <200000000>;
+	vmmc-supply = <&vddao_3v3>;
+	vqmmc-supply = <&vddao_1v8>;
 };
 
 &uart_A {
@@ -131,7 +171,7 @@
 	uart-has-rtscts;
 
 	bluetooth {
-		compatible = "brcm,bcm43438-bt";
+		compatible = "mtk,mt7663-bt";
 		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
 		max-speed = <2000000>;
 		clocks = <&wifi32k>;
@@ -139,36 +179,93 @@
 	};
 };
 
+/* CPU Frequency Table */
 &cpu_opp_table {
-	opp-100000000 {
-		status = "disabled";
+	/* Low frequency entries */
+	opp-400000000 {
+		opp-hz = /bits/ 64 <400000000>;
+		opp-microvolt = <680000>;
+	};
+	
+	opp-600000000 {
+		opp-hz = /bits/ 64 <600000000>;
+		opp-microvolt = <690000>;
 	};
 
-	opp-250000000 {
-		status = "disabled";
+	opp-800000000 {
+		opp-hz = /bits/ 64 <800000000>;
+		opp-microvolt = <710000>;
 	};
-
-	opp-500000000 {
-		status = "disabled";
+	
+	/* Standard frequency entries */
+	opp-1000000000 {
+		opp-hz = /bits/ 64 <1000000000>;
+		opp-microvolt = <731000>;
 	};
-
-	opp-667000000 {
-		status = "disabled";
+	
+	opp-1200000000 {
+		opp-hz = /bits/ 64 <1200000000>;
+		opp-microvolt = <731000>;
 	};
-
+	
+	opp-1398000000 {
+		opp-hz = /bits/ 64 <1398000000>;
+		opp-microvolt = <761000>;
+	};
+	
+	opp-1512000000 {
+		opp-hz = /bits/ 64 <1512000000>;
+		opp-microvolt = <791000>;
+	};
+	
+	opp-1608000000 {
+		opp-hz = /bits/ 64 <1608000000>;
+		opp-microvolt = <831000>;
+	};
+	
+	opp-1704000000 {
+		opp-hz = /bits/ 64 <1704000000>;
+		opp-microvolt = <861000>;
+	};
+	
+	opp-1800000000 {
+		opp-hz = /bits/ 64 <1800000000>;
+		opp-microvolt = <981000>;
+	};
+	
+	/* Overclocking entries */
 	opp-1908000000 {
 		opp-hz = /bits/ 64 <1908000000>;
 		opp-microvolt = <1001000>;
 	};
-
+	
 	opp-2016000000 {
-			opp-hz = /bits/ 64 <2016000000>;
-			opp-microvolt = <1021000>;
+		opp-hz = /bits/ 64 <2016000000>;
+		opp-microvolt = <1021000>;
 	};
 };
 
 &ethmac {
+	/delete-property/ resets;
+	/delete-property/ reset-names;
 	phy-handle = <&internal_ephy>;
 	phy-mode = "rmii";
 	status = "okay";
+};
+
+&dwc2 {
+    status = "okay";
+    vusb_d-supply = <&vusb_d_reg>;
+    vusb_a-supply = <&vusb_a_reg>;
+};
+
+&usb3_pcie_phy {
+    status = "okay";
+};
+
+&dwc3 {
+    status = "okay";
+    dr_mode = "host"; /* Set to host mode for USB peripherals */
+    vusb_d-supply = <&vusb_d_reg>;
+    vusb_a-supply = <&vusb_a_reg>;
 };
